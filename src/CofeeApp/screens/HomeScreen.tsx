@@ -1,97 +1,107 @@
-import { View, Text, Image, TouchableOpacity, TextInput, FlatList, Dimensions, Platform, StatusBar } from 'react-native'
-import React, { useState } from 'react'
-import { SafeAreaView } from 'react-native-safe-area-context'
-import { themeColors } from '../theme';
-import { categories, coffeeItems } from '../constants';
-import Carousel from 'react-native-snap-carousel';
-import CoffeeCard from '../components/coffeeCard';
-import { BellIcon, MagnifyingGlassIcon } from 'react-native-heroicons/outline'
+import { View, Text, StatusBar, Image, SafeAreaView, TextInput, TouchableOpacity, FlatList, Dimensions, Platform } from 'react-native'
+import React, { useRef, useState } from 'react'
+import Images from '../utils/Images'
 import { MapPinIcon } from 'react-native-heroicons/solid'
+import { themeColors } from '../theme'
+import { BellIcon, MagnifyingGlassIcon } from 'react-native-heroicons/outline'
+import colors from "tailwindcss/colors";
+import { categories, coffeeItems } from '../constants'
+import Carousel from 'react-native-snap-carousel';
+import CoffeeCard, { CoffeeCardType } from '../components/CoffeeCard'
 
 const { width, height } = Dimensions.get('window');
-
 const ios = Platform.OS == 'ios';
 
-const HomeScreen = () => {
-    const [activeCategory, setActiveCategory] = useState(1);
+const HomeScreen = ({ navigation, route }) => {
+
+    const [activeCategory, setActiveCategory] = useState<number | undefined>()
+    const flatListRef = useRef<FlatList>()
 
     return (
-        <View className="flex-1 relative bg-white">
-            <StatusBar barStyle={'dark-content'} />
+        <View className="flex-1 relative bg-white ">
+            <StatusBar barStyle={"dark-content"} />
 
+            {/* Header Image */}
             <Image
-                source={require('../assets/images/beansBackground1.png')}
-                style={{ height: height * 0.2 }}
-                className="w-full absolute -top-5 opacity-10" />
-            <SafeAreaView className={ios ? '-mb-8' : ''}>
-                {/* avatar and bell icon */}
-                <View className="mx-4 flex-row justify-between items-center">
-                    <Image source={require('../assets/images/avatar.png')}
+                source={Images.beansBackground1}
+                className="w-full absolute -top-5 opacity-10" style={{ height: 220 }} />
+
+            {/* Container */}
+            <SafeAreaView>
+
+                {/* Top Toolbar */}
+                <View className="px-4 flex-row justify-between items-center">
+                    <Image
+                        source={Images.avatar}
                         className="h-9 w-9 rounded-full" />
 
                     <View className="flex-row items-center space-x-2">
-                        <MapPinIcon size="25" color={themeColors.bgLight} />
-                        <Text className="font-semibold text-base">
-                            New York, NYC
-                        </Text>
+                        <MapPinIcon size={25} color={themeColors.bgLight} />
+                        <Text className="text-base font-semibold">New York, NYC</Text>
                     </View>
-                    <BellIcon size="27" color="black" />
+
+                    <BellIcon size={27} color={colors.black} />
                 </View>
-                {/* search bar */}
-                <View className="mx-5 shadow" style={{ marginTop: height * 0.06 }}>
-                    <View className="flex-row items-center rounded-full p-1 bg-[#e6e6e6]">
-                        <TextInput placeholder='Search' className="p-4 flex-1 font-semibold text-gray-700" />
+
+                {/* Search bar */}
+                <View className="mt-14 mx-5">
+                    <View className="flex-row justify-center items-center rounded-full p-1 bg-[#e6e6e6]">
+                        <TextInput
+                            placeholder='Search'
+                            className="p-4 flex-1 font-semibold text-gray-700" />
                         <TouchableOpacity
+                            activeOpacity={0.5}
                             className="rounded-full p-2"
                             style={{ backgroundColor: themeColors.bgLight }}>
-                            <MagnifyingGlassIcon size="25" strokeWidth={2} color="white" />
+                            <MagnifyingGlassIcon size={25} strokeWidth={2} color={colors.white} />
                         </TouchableOpacity>
                     </View>
                 </View>
-                {/* categories */}
-                <View className="px-5 mt-6">
+
+                {/* Category */}
+                <View className="mt-6 px-5 mb-4">
                     <FlatList
-                        horizontal
+                        ref={flatListRef}
+                        horizontal={true}
                         showsHorizontalScrollIndicator={false}
                         data={categories}
-                        keyExtractor={item => item.id}
+                        keyExtractor={(item, index) => `id${index}`}
                         className="overflow-visible"
-                        renderItem={({ item }) => {
-                            isActive = item.id == activeCategory;
-                            let activeTextClass = isActive ? 'text-white' : 'text-gray-700';
+                        renderItem={({ item, index }) => {
+                            let isActive = item.id === activeCategory
+                            let activeCategoryClass = isActive ? 'text-white' : 'text-gray-700'
                             return (
                                 <TouchableOpacity
-                                    onPress={() => setActiveCategory(item.id)}
-                                    style={{ backgroundColor: isActive ? themeColors.bgLight : 'rgba(0,0,0,0.07)' }}
-                                    className="p-4 px-5 mr-2 rounded-full shadow">
-                                    <Text className={"font-semibold " + activeTextClass}>{item.title}</Text>
+                                    onPress={() => {
+                                        flatListRef.current?.scrollToIndex({ animated: true, index: index })
+                                        setActiveCategory(item.id)
+                                    }}
+                                    activeOpacity={0.5}
+                                    style={{ backgroundColor: isActive ? themeColors.bgLight : 'rgba(0, 0, 0, 0.07)' }}
+                                    className="p-4 px-5 rounded-full mr-2">
+                                    <Text className={"font-semibold shadow " + activeCategoryClass}>{item.title}</Text>
                                 </TouchableOpacity>
                             )
-                        }}
-                    />
+                        }} />
                 </View>
 
-            </SafeAreaView>
-
-            {/* coffee cards */}
-            <View className={`overflow-visible flex justify-center flex-1 ${ios ? 'mt-10' : ''}`}>
-                <View>
-                    <Carousel
-                        containerCustomStyle={{ overflow: 'visible' }}
+                {/* Coffee Card */}
+                <View className="py-2 mt-16">
+                    <Carousel containerCustomStyle={{ overflow: 'visible' }}
                         data={coffeeItems}
-                        renderItem={({ item }) => <CoffeeCard item={item} />}
+                        renderItem={({ item }) => <CoffeeCard item={item as CoffeeCardType} />}
                         firstItem={1}
                         loop={true}
                         inactiveSlideScale={0.75}
                         inactiveSlideOpacity={0.75}
                         sliderWidth={width}
                         itemWidth={width * 0.63}
-                        slideStyle={{ display: 'flex', alignItems: 'center' }}
-                    />
+                        slideStyle={{ display: 'flex', alignItems: 'center' }} />
                 </View>
-            </View>
+
+            </SafeAreaView>
         </View>
     )
 }
 
-export default HomeScreen;
+export default HomeScreen

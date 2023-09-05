@@ -16,7 +16,7 @@ import {
     HeartIcon as HeartSolid,
     ShoppingBagIcon as BagSolid,
 } from 'react-native-heroicons/solid';
-import FavouriteScreen from '../screens/FavouriteScreen';
+import ProductScreen from '../screens/ProductScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -40,7 +40,7 @@ const AppNavigation = () => {
                 <Stack.Screen
                     name="Product"
                     options={{ headerShown: false }}
-                    component={FavouriteScreen}
+                    component={ProductScreen}
                 />
             </Stack.Navigator>
         </NavigationContainer>
@@ -81,28 +81,28 @@ const menuIcons = (route, focused) => {
 
     if (route.name === 'home') {
         icon = focused ? (
-            <HomeSolid size="30" color={themeColors.bgLight} />
+            <HomeSolid size="30" color={themeColors.bgLight} className="shadow" />
         ) : (
-            <HomeOutline size="30" strokeWidth={2} color="white" />
+            <HomeOutline size="30" strokeWidth={2} color="white" className="shadow" />
         );
     } else if (route.name === 'favourite') {
         icon = focused ? (
-            <HeartSolid size="30" color={themeColors.bgLight} />
+            <HeartSolid size="30" color={themeColors.bgLight} className="shadow" />
         ) : (
-            <HeartOutline size="30" strokeWidth={2} color="white" />
+            <HeartOutline size="30" strokeWidth={2} color="white" className="shadow" />
         );
     } else if (route.name === 'cart') {
         icon = focused ? (
-            <BagSolid size="30" color={themeColors.bgLight} />
+            <BagSolid size="30" color={themeColors.bgLight} className="shadow" />
         ) : (
-            <BagOutline size="30" strokeWidth={2} color="white" />
+            <BagOutline size="30" strokeWidth={2} color="white" className="shadow" />
         );
     }
 
     let buttonClass = focused ? 'bg-white' : '';
     return (
         <View
-            className={'flex items-center rounded-full p-3 shadow ' + buttonClass}>
+            className={'flex items-center rounded-full p-3 ' + buttonClass}>
             {icon}
         </View>
     );
