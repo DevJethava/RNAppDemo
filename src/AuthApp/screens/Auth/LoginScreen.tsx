@@ -1,29 +1,58 @@
-import { View, Text, SafeAreaView, TextInput, Keyboard, Button, TouchableOpacity, Alert } from 'react-native'
+import { View, Text, SafeAreaView, TextInput, Keyboard, Button, TouchableOpacity, Alert, ActivityIndicator } from 'react-native'
 import React, { useState } from 'react'
 import CommonStyles from '../../utils/CommonStyles'
 import Screen from '../../utils/Screen'
 import { useAuth } from '../../context/useAuth'
 import { AuthData } from '../../context/AuthProvider'
+import axios from "axios";
+import colors from 'tailwindcss/colors'
+
+type LoginResponseType = {
+    id: string | undefined,
+    username: string,
+    email: string,
+    firstName: string,
+    lastName: string,
+    gender: string,
+    image: string,
+    token: string,
+}
 
 const LoginScreen = ({ navigation, route }) => {
 
     const { signIn } = useAuth();
 
-    const [email, setEmail] = useState<string>("")
-    const [password, setPassword] = useState<string>("")
+    const [email, setEmail] = useState<string>("kminchelle")
+    const [password, setPassword] = useState<string>("0lelplR")
 
-    const onSignInPress = () => {
+    const [loading, setLoading] = useState<boolean>(false)
+
+    const onSignInPress = async () => {
         if (email.trim().length <= 0) {
             Alert.alert("Please Enter valid Email!!")
             return
         }
 
-        if (password.trim().length < 8) {
+        if (password.trim().length < 7) {
             Alert.alert("Please Enter valid Password!!")
             return
         }
 
-        signIn({ email: email, token: password } as AuthData)
+        setLoading(true)
+        await axios.post('https://dummyjson.com/auth/login', {
+            username: email,
+            password: password
+        })
+            .then((response) => {
+                let mResponse: LoginResponseType = response.data as LoginResponseType
+                signIn({ email: mResponse.email, token: mResponse.token } as AuthData)
+            })
+            .catch((error) => {
+                console.log(error.response.data);
+                Alert.alert(error.response.data.message);
+            }).finally(() => {
+                setLoading(false)
+            });
     }
 
     const goToSignUpScreen = () => {
@@ -72,9 +101,15 @@ const LoginScreen = ({ navigation, route }) => {
                 <Text className="font-semibold text-violet-500" onPress={goToSignUpScreen}> Sign Up</Text>
             </Text>
 
-            <TouchableOpacity className="px-8 py-2 bg-violet-500 rounded-lg mt-8" activeOpacity={0.5} onPress={onSignInPress}>
-                <Text className="text-white font-bold text-sm">Log In</Text>
-            </TouchableOpacity>
+            {
+                loading ?
+                    <ActivityIndicator className="mt-8" size={'large'} color={colors.violet[500]} />
+                    :
+                    <TouchableOpacity className="px-8 py-2 bg-violet-500 rounded-lg mt-8" activeOpacity={0.5} onPress={onSignInPress}>
+                        <Text className="text-white font-bold text-sm">Log In</Text>
+                    </TouchableOpacity>
+
+            }
         </View>
     )
 }
