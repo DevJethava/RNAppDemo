@@ -14,7 +14,7 @@ const ios = Platform.OS == 'ios';
 
 const HomeScreen = ({ navigation, route }) => {
 
-    const [activeCategory, setActiveCategory] = useState<number | undefined>()
+    const [activeCategory, setActiveCategory] = useState<number | undefined>(1)
     const flatListRef = useRef<FlatList>()
 
     return (
