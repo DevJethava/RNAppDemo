@@ -39,7 +39,7 @@ const CoffeeCard = ({ item }: CoffeeCardType | any) => {
                     shadowRadius: 30,
                     shadowOffset: { width: 0, height: 40 },
                     shadowOpacity: 0.8,
-                    marginTop: ios ? -(height * 0.07) : 15,
+                    marginTop: ios ? -(height * 0.07) : 8,
                 }}
                 className="flex-row justify-center">
                 <Image
@@ -50,7 +50,7 @@ const CoffeeCard = ({ item }: CoffeeCardType | any) => {
 
             {/* Details  */}
             <View className={`flex-1 justify-between ${ios ? 'mt-5' : ''} pl-5 pr-4 pb-5`}>
-                <View className="space-y-3 mt-3">
+                <View className={`space-y-3 ${ios ? "mt-3" : ""}`}>
                     <Text className="text-3xl text-white font-semibold z-10">
                         {item.name}
                     </Text>

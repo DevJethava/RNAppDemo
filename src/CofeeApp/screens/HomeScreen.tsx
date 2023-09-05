@@ -24,7 +24,7 @@ const HomeScreen = ({ navigation, route }) => {
             {/* Header Image */}
             <Image
                 source={Images.beansBackground1}
-                className="w-full absolute -top-5 opacity-10" style={{ height: 220 }} />
+                className="w-full absolute -top-5 opacity-10" style={{ height: ios ? 220 : 185 }} />
 
             {/* Container */}
             <SafeAreaView>
@@ -48,7 +48,7 @@ const HomeScreen = ({ navigation, route }) => {
                     <View className="flex-row justify-center items-center rounded-full p-1 bg-[#e6e6e6]">
                         <TextInput
                             placeholder='Search'
-                            className="p-4 flex-1 font-semibold text-gray-700" />
+                            className={`${ios ? "p-4" : "p-2"} flex-1 font-semibold text-gray-700`} />
                         <TouchableOpacity
                             activeOpacity={0.5}
                             className="rounded-full p-2"
@@ -86,7 +86,7 @@ const HomeScreen = ({ navigation, route }) => {
                 </View>
 
                 {/* Coffee Card */}
-                <View className="py-2 mt-16">
+                <View className={`py-2 ${ios ? "mt-16" : "mt-2"}`}>
                     <Carousel containerCustomStyle={{ overflow: 'visible' }}
                         data={coffeeItems}
                         renderItem={({ item }) => <CoffeeCard item={item as CoffeeCardType} />}

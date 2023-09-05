@@ -22,7 +22,7 @@ const ProductScreen = ({ navigation, route }) => {
             {/* Header Image */}
             <Image
                 source={Images.beansBackground2}
-                style={{ height: 300, borderBottomLeftRadius: 50, borderBottomRightRadius: 50 }}
+                style={{ height: ios ? 300 : height / 3.5, borderBottomLeftRadius: 50, borderBottomRightRadius: 50 }}
                 className="w-full absolute" />
 
             {/* Container */}
@@ -40,13 +40,14 @@ const ProductScreen = ({ navigation, route }) => {
 
                 </View>
 
+                {/* Product Image */}
                 <View className="flex-row justify-center" style={{
                     shadowColor: themeColors.bgDark,
                     shadowRadius: 30,
                     shadowOffset: { width: 0, height: 30 },
                     shadowOpacity: 0.9
                 }}>
-                    <Image source={item.image} className="h-60 w-60 mt-8" />
+                    <Image source={item.image} className={`h-60 w-60 ${ios ? 'mt-8' : ''}`} />
                 </View>
 
                 {/* Rating Display */}
