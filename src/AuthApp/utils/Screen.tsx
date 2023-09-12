@@ -1,10 +1,10 @@
 const Screen = {
-    // Auth
+    // Home
     HomeStack: 'HomeStack',
     HomeScreen: 'HomeScreen',
     DetailScreen: 'DetailScreen',
 
-    // Home
+    // Auth
     AuthStack: 'AuthStack',
     LoginScreen: 'LoginScreen',
     SignupScreen: 'SignupScreen',
