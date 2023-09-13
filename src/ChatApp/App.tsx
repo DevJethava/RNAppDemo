@@ -10,10 +10,13 @@ import {
     StyleSheet, Text, TouchableOpacity, View,
 } from 'react-native';
 import AppNavigation from './navigation/AppNavigation';
+import AuthProvider from './context/AuthProvider';
 
 function App(): JSX.Element {
     return (
-        <AppNavigation />
+        <AuthProvider>
+            <AppNavigation />
+        </AuthProvider>
     );
 }
 

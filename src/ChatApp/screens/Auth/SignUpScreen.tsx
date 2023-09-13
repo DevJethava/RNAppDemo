@@ -1,4 +1,4 @@
-import { View, Text, Image, Dimensions, StatusBar, TouchableOpacity, Platform, ScrollView } from 'react-native'
+import { View, Text, Image, Dimensions, StatusBar, TouchableOpacity, Platform, ScrollView, Alert } from 'react-native'
 import React, { useState } from 'react'
 import { BGImage, Logo } from '../../assets'
 import colors from 'tailwindcss/colors'
@@ -8,6 +8,10 @@ import { avatars } from '../../utils/Avatar'
 import { BlurView } from '@react-native-community/blur'
 import * as Animatable from 'react-native-animatable';
 import Const from '../../utils/Const'
+import { createUserWithEmailAndPassword } from 'firebase/auth'
+import { firebaseAuth, firestoreDB } from '../../config/firebase.config'
+import { doc, setDoc } from 'firebase/firestore'
+import Button from '../../components/Button'
 
 const ios = Platform.OS === 'ios'
 
@@ -24,11 +28,64 @@ const SignUpScreen = ({ navigation, route }) => {
     const [passwordSecureEntry, setPasswordSecureEntry] = useState<boolean>(true)
     const [isAvatarMenu, setIsAvatarMenu] = useState<boolean>(false)
 
-    const [getEmailValidationStatus, setEmailValidationStatus] = useState<boolean>(false)
+    const [getEmailValidationStatus, setEmailValidationStatus] = useState<boolean>(true)
 
     const handleAvatar = (item) => {
         setAvatar(item.image.asset.url)
         setIsAvatarMenu(false)
+    }
+
+    const handleSignUp = async () => {
+
+        if (name.trim() === "") {
+            Alert.alert("Error", "Please Enter valid Name.")
+            return
+        }
+
+        if (getEmailValidationStatus && email === "") {
+            Alert.alert("Error", "Please Enter valid Email.")
+            return
+        }
+
+        if (password.trim().length <= 7) {
+            Alert.alert("Error", "Please Enter valid Password.")
+            return
+        }
+
+        await createUserWithEmailAndPassword(firebaseAuth, email, password).then((user) => {
+            // Push Data to Firestore
+            const data = {
+                _id: user.user.uid,
+                fullName: name,
+                profilePic: avatar,
+                providersData: { ...user.user.providerData[0] }
+            }
+
+            data.providersData.displayName = data.fullName
+            data.providersData.photoURL = data.profilePic
+
+            setDoc(doc(firestoreDB, 'users', data._id), data).then(() => {
+                Alert.alert("Success", "Your account is created Successfully! Login to Continue... ", [
+                    { text: 'OK', onPress: () => navigation.goBack() }
+                ])
+            }).catch(error => {
+                console.log(error)
+            })
+        }).catch((error) => {
+            console.log(error)
+            const errorCode = error.code;
+            if (errorCode === 'auth/email-already-in-use') {
+                Alert.alert("Error", 'That email address is already in use!')
+            } else if (errorCode === 'auth/invalid-email') {
+                Alert.alert("Error", 'That email address is invalid!')
+            } else if (errorCode === 'auth/network-request-failed') {
+                Alert.alert("Error", 'Check your Internet Connection.')
+            } else {
+                const errorMessage = error.message;
+                console.log(errorMessage)
+                Alert.alert("Error", "Something went wrong!!")
+            }
+        })
     }
 
     return (
@@ -141,12 +198,8 @@ const SignUpScreen = ({ navigation, route }) => {
                         }
                     />
 
-                    {/* Login Button */}
-                    <TouchableOpacity
-                        activeOpacity={0.5}
-                        className="w-full px-4 py-2 rounded-xl bg-chatapp-primary my-3 flex items-center justify-center">
-                        <Text className="py-2 text-white text-xl font-semibold">Sign Up</Text>
-                    </TouchableOpacity>
+                    {/* Sign-up Button */}
+                    <Button title='Sign Up' onPress={handleSignUp} />
 
                     <View className="flex-row w-full items-center justify-center space-x-2">
                         <Text className="text-base text-chatapp-primaryText">Already have an account?</Text>
