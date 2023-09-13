@@ -1,4 +1,4 @@
-import { View, Text, Image, Dimensions, StatusBar, TouchableOpacity, Platform } from 'react-native'
+import { View, Text, Image, Dimensions, StatusBar, TouchableOpacity, Platform, Alert } from 'react-native'
 import React, { useState } from 'react'
 import { BGImage, Logo } from '../../assets'
 import colors from 'tailwindcss/colors'
@@ -6,12 +6,19 @@ import UserTextInput from '../../components/UserTextInput'
 import { EnvelopeIcon, EyeIcon, EyeSlashIcon, LockClosedIcon } from 'react-native-heroicons/outline'
 import Screen from '../../utils/Screen'
 import Const from '../../utils/Const'
+import Button from '../../components/Button'
+import { signInWithEmailAndPassword } from 'firebase/auth'
+import { firebaseAuth, firestoreDB } from '../../config/firebase.config'
+import { useAuth } from '../../context/useAuth'
+import { doc, getDoc } from 'firebase/firestore'
+import { AuthData } from '../../utils/Types'
 
 const ios = Platform.OS === 'ios'
 
 const LoginScreen = ({ navigation, route }) => {
 
     const screenWidth = Math.round(Dimensions.get('window').width)
+    const { signIn } = useAuth();
 
     const [email, setEmail] = useState<string>("")
     const [password, setPassword] = useState<string>("")
@@ -19,6 +26,43 @@ const LoginScreen = ({ navigation, route }) => {
     const [passwordSecureEntry, setPasswordSecureEntry] = useState<boolean>(true)
 
     const [getEmailValidationStatus, setEmailValidationStatus] = useState<boolean>(true)
+
+    const handleLogin = async () => {
+        if (getEmailValidationStatus && email === "") {
+            Alert.alert("Error", "Please Enter valid Email.")
+            return
+        }
+
+        if (password.trim().length <= 7) {
+            Alert.alert("Error", "Please Enter valid Password.")
+            return
+        }
+
+        await signInWithEmailAndPassword(firebaseAuth, email, password).then((userData) => {
+            const _uuid = userData.user.uid
+            getDoc(doc(firestoreDB, 'users', _uuid)).then((docSnap) => {
+                if (docSnap.exists()) {
+                    // console.log(docSnap.data())
+                    signIn({ token: _uuid, data: JSON.stringify(docSnap.data()) } as AuthData).then(() => { })
+                } else {
+                    Alert.alert("Error", "Something went wrong! try again after some time.")
+                }
+            })
+        }).catch((error) => {
+            const errorCode = error.code;
+            if (errorCode === 'auth/wrong-password') {
+                Alert.alert("Error", 'Wrong Email and Password!')
+            } else if (errorCode === 'auth/user-not-found') {
+                Alert.alert("Error", 'User Not Found, Please SignUp.')
+            } else if (errorCode === 'auth/network-request-failed') {
+                Alert.alert("Error", 'Check your Internet Connection.')
+            } else {
+                console.log("error => ", error)
+                console.log("error.code => ", error.code)
+                console.log("error.message => ", error.message)
+            }
+        })
+    }
 
     return (
         <View className="flex-1 items-center justify-start">
@@ -30,7 +74,6 @@ const LoginScreen = ({ navigation, route }) => {
                 style={{ width: screenWidth }} />
 
             {/* Main View */}
-
             <View className="w-full h-full bg-white rounded-tl-[90px] -m-44 flex items-center justify-start py-6 px-6 space-y-6">
 
                 {/* Top Logo */}
@@ -76,11 +119,7 @@ const LoginScreen = ({ navigation, route }) => {
                     />
 
                     {/* Login Button */}
-                    <TouchableOpacity
-                        activeOpacity={0.5}
-                        className="w-full px-4 py-2 rounded-xl bg-chatapp-primary my-3 flex items-center justify-center">
-                        <Text className="py-2 text-white text-xl font-semibold">Sign In</Text>
-                    </TouchableOpacity>
+                    <Button title='Sign In' onPress={handleLogin} />
 
                     <View className="flex-row w-full items-center justify-center space-x-2">
                         <Text className="text-base text-chatapp-primaryText">Don't have an account?</Text>

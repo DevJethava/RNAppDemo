@@ -7,6 +7,8 @@ const Screen = {
     // Home
     HomeStack: 'HomeStack',
     HomeScreen: 'HomeScreen',
+    AddToChatScreen: 'AddToChatScreen',
+    ChatScreen: 'ChatScreen',
     ProfileScreen: 'ProfileScreen',
 };
 
