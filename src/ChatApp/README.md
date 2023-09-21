@@ -18,5 +18,5 @@ To learn more about Used Tech, take a look at the following resources:
 
 <p float="center">
 <img src="https://raw.githubusercontent.com/DevJethava/RNPractice/master/src/ChatApp/assets/screenshots/7.png" alt="Your image title" width="250"/>
-<img src="https://raw.githubusercontent.com/DevJethava/RNPractice/master/src/ChatApp/assets/screenshots/7.png" alt="Your image title" width="250"/>
+<img src="https://raw.githubusercontent.com/DevJethava/RNPractice/master/src/ChatApp/assets/screenshots/8.png" alt="Your image title" width="250"/>
 </p>
