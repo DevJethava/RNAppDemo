@@ -1,4 +1,4 @@
-import { View, Text, ActivityIndicator, StatusBar, Image } from 'react-native'
+import { View, Text, ActivityIndicator, StatusBar, Image, Platform } from 'react-native'
 import React from 'react'
 import { NavigationContainer } from '@react-navigation/native'
 import HomeStackScreen from './HomeStackScreen'
@@ -32,7 +32,7 @@ const AppNavigation = () => {
                             <Image
                                 source={Logo}
                                 className="w-32 h-32"
-                                resizeMode='contain' />
+                                resizeMode='contain' style={{ height: 128, width: 128 }} />
                             <ActivityIndicator size={'large'} color={colors.green[200]} />
                         </View>
                     </BlurView>
